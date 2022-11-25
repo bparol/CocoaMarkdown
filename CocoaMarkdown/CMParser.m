@@ -123,29 +123,42 @@
         
         self.currentNode = node;        
         
-        if(node.type == CMNodeTypeLink && node.firstChild.type == CMNodeTypeImage && !_parsingImage) {
+        if(node.type == CMNodeTypeLink && node.firstChild.type == CMNodeTypeImage && event == CMEventTypeEnter) {
             _parsingImage = true;
-            _linkWithImage = node.URLString;
+            if(node.URLString) {
+                _linkWithImage = node.URLString;
+            }
         }
-        else if(node.type == CMNodeTypeImage && !_parsingImage) {
-            _imageLink = node.URLString;
-            _imageName = node.title;
+        else if(node.type == CMNodeTypeImage && event == CMEventTypeEnter) {
             _parsingImage = true;
+            if(node.URLString) {
+                _imageLink = node.URLString;
+            }
+            if(node.title) {
+                _imageName = node.title;
+            }
         }
         else if(node.type == CMNodeTypeText && _parsingImage) {
             _textNestedInImage = node.stringValue;
         }
-        else if(node.type == CMNodeTypeImage && _parsingImage) {
-            _parsingImage = false;
-            
-            NSString *imageDescription = [NSString stringWithFormat: @"![%@](%@ \"%@\")", _textNestedInImage, _imageLink, _imageName];
-            [_delegate parser:self foundText:imageDescription];
+        else if(node.type == CMNodeTypeImage && event == CMEventTypeExit) {
+            if(node.parent.type != CMNodeTypeLink) {
+                NSString *imageDescription = [NSString stringWithFormat: @"![%@](%@ \"%@\")", _textNestedInImage, _imageLink, _imageName];
+                [_delegate parser:self foundText:imageDescription];
+                
+                _parsingImage = false;
+                _imageName = nil;
+                _imageLink = nil;
+            }
         }
-        else if(node.type == CMNodeTypeLink && node.firstChild.type == CMNodeTypeImage && _parsingImage) {
-            _parsingImage = false;
-            
+        else if(node.type == CMNodeTypeLink && node.firstChild.type == CMNodeTypeImage && _parsingImage) {            
             NSString *imageDescription = [NSString stringWithFormat: @"[![%@](%@)](%@)", _textNestedInImage, _imageLink, _linkWithImage];
             [_delegate parser:self foundText:imageDescription];
+            
+            _parsingImage = false;
+            _imageName = nil;
+            _imageLink = nil;
+            _linkWithImage = nil;
         }
         else if(!_parsingImage) {
             [self handleNode:node event:event];
