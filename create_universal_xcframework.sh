@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 xcodebuild archive \
  -scheme CocoaMarkdown-iOS \
  -archivePath build/iphonesimulator \
