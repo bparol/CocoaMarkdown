@@ -53,6 +53,12 @@
         unsigned int didEndListItem:1;
     } _delegateFlags;
     volatile int32_t _parsing;
+    
+    bool _parsingImage;
+    NSString *_linkWithImage;
+    NSString *_imageLink;
+    NSString *_imageName;
+    NSString *_textNestedInImage;
 }
 
 #pragma mark - Initialization
@@ -76,8 +82,74 @@
     if (!OSAtomicCompareAndSwap32Barrier(0, 1, &_parsing)) return;
     
     [[_document.rootNode iterator] enumerateUsingBlock:^(CMNode *node, CMEventType event, BOOL *stop) {
-        self.currentNode = node;
-        [self handleNode:node event:event];
+        
+        // TODO: handy debug code
+//        NSInteger level = 0;
+//        NSString *text = @"--";
+//        if([node parent]) {
+//            level = 1;
+//            text = @"----";
+//        }
+//        if([[node parent] parent]) {
+//            level = 2;
+//            text = @"------";
+//        }
+//        else if([[[node parent] parent] parent]) {
+//            level = 3;
+//            text = @"--------";
+//        }
+//        else if([[[[node parent] parent] parent] parent]) {
+//            level = 4;
+//            text = @"----------";
+//        }
+//
+//        NSString *eventDescription;
+//        switch (event) {
+//            case CMEventTypeEnter:
+//                eventDescription = @"enter";
+//                break;
+//            case CMEventTypeDone:
+//                eventDescription = @"done";
+//                break;
+//            case CMEventTypeExit:
+//                eventDescription = @"exit";
+//                break;
+//            case CMEventTypeNone:
+//                eventDescription = @"none";
+//                break;
+//        }
+//
+//        NSLog(@"%@ type: %ld, event: %@, URLString: %@", text, (long)node.type, eventDescription, node.URLString);
+        
+        self.currentNode = node;        
+        
+        if(node.type == CMNodeTypeLink && node.firstChild.type == CMNodeTypeImage && !_parsingImage) {
+            _parsingImage = true;
+            _linkWithImage = node.URLString;
+        }
+        else if(node.type == CMNodeTypeImage && !_parsingImage) {
+            _imageLink = node.URLString;
+            _imageName = node.title;
+            _parsingImage = true;
+        }
+        else if(node.type == CMNodeTypeText && _parsingImage) {
+            _textNestedInImage = node.stringValue;
+        }
+        else if(node.type == CMNodeTypeImage && _parsingImage) {
+            _parsingImage = false;
+            
+            NSString *imageDescription = [NSString stringWithFormat: @"![%@](%@ \"%@\")", _textNestedInImage, _imageLink, _imageName];
+            [_delegate parser:self foundText:imageDescription];
+        }
+        else if(node.type == CMNodeTypeLink && node.firstChild.type == CMNodeTypeImage && _parsingImage) {
+            _parsingImage = false;
+            
+            NSString *imageDescription = [NSString stringWithFormat: @"[![%@](%@)](%@)", _textNestedInImage, _imageLink, _linkWithImage];
+            [_delegate parser:self foundText:imageDescription];
+        }
+        else if(!_parsingImage) {
+            [self handleNode:node event:event];
+        }
         if (_parsing == 0) *stop = YES;
     }];
     

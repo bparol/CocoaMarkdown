@@ -40,6 +40,7 @@ class ViewController: UIViewController {
         renderer.register(CMHTMLSuperscriptTransformer())
         renderer.register(CMHTMLUnderlineTransformer())
         textView.attributedText = renderer.render()
+        textView.layoutManager.allowsNonContiguousLayout = true
     }
 }
 
