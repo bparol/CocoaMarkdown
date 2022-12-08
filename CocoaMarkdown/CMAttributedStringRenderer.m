@@ -31,14 +31,16 @@
     NSMutableDictionary *_tagNameToTransformerMapping;
     NSMutableAttributedString *_buffer;
     NSAttributedString *_attributedString;
+    BOOL _debugMode;
 }
 
-- (instancetype)initWithDocument:(CMDocument *)document attributes:(CMTextAttributes *)attributes
+- (instancetype)initWithDocument:(CMDocument *)document attributes:(CMTextAttributes *)attributes debugMode:(BOOL)debugEnabled
 {
     if ((self = [super init])) {
         _document = document;
         _attributes = attributes;
         _tagNameToTransformerMapping = [[NSMutableDictionary alloc] init];
+        _debugMode = debugEnabled;
     }
     return self;
 }
@@ -56,7 +58,7 @@
         _HTMLStack = [[CMStack alloc] init];
         _buffer = [[NSMutableAttributedString alloc] init];
         
-        CMParser *parser = [[CMParser alloc] initWithDocument:_document delegate:self];
+        CMParser *parser = [[CMParser alloc] initWithDocument:_document delegate:self debugMode:_debugMode];
         [parser parse];
         
         _attributedString = [_buffer copy];
@@ -255,11 +257,17 @@
 
 - (void)parserFoundSoftBreak:(CMParser *)parser
 {
-    [self appendString:@" "];
+    if(_debugMode){
+        NSLog(@"[CocoaMarkdown] replacing SOFT BREAK with u2028");
+    }
+    [self appendString:@"\u2028"];
 }
 
 - (void)parserFoundLineBreak:(CMParser *)parser
 {
+    if(_debugMode){
+        NSLog(@"[CocoaMarkdown] replacing LINE BREAK with u2028");
+    }
     [self appendString:@"\u2028"];
 }
 

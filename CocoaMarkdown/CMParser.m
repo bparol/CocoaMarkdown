@@ -59,17 +59,19 @@
     NSString *_imageLink;
     NSString *_imageName;
     NSString *_textNestedInImage;
+    BOOL _debugEnabled;
 }
 
 #pragma mark - Initialization
 
-- (instancetype)initWithDocument:(CMDocument *)document delegate:(id<CMParserDelegate>)delegate
+- (instancetype)initWithDocument:(CMDocument *)document delegate:(id<CMParserDelegate>)delegate debugMode:(BOOL)debugEnabled
 {
     NSParameterAssert(document);
     NSParameterAssert(delegate);
     
     if ((self = [super init])) {
         _document = document;
+        _debugEnabled = debugEnabled;
         self.delegate = delegate;
     }
     return self;
@@ -83,43 +85,47 @@
     
     [[_document.rootNode iterator] enumerateUsingBlock:^(CMNode *node, CMEventType event, BOOL *stop) {
         
-        // TODO: handy debug code
-//        NSInteger level = 0;
-//        NSString *text = @"--";
-//        if([node parent]) {
-//            level = 1;
-//            text = @"----";
-//        }
-//        if([[node parent] parent]) {
-//            level = 2;
-//            text = @"------";
-//        }
-//        else if([[[node parent] parent] parent]) {
-//            level = 3;
-//            text = @"--------";
-//        }
-//        else if([[[[node parent] parent] parent] parent]) {
-//            level = 4;
-//            text = @"----------";
-//        }
-//
-//        NSString *eventDescription;
-//        switch (event) {
-//            case CMEventTypeEnter:
-//                eventDescription = @"enter";
-//                break;
-//            case CMEventTypeDone:
-//                eventDescription = @"done";
-//                break;
-//            case CMEventTypeExit:
-//                eventDescription = @"exit";
-//                break;
-//            case CMEventTypeNone:
-//                eventDescription = @"none";
-//                break;
-//        }
-//
-//        NSLog(@"%@ type: %ld, event: %@, URLString: %@", text, (long)node.type, eventDescription, node.URLString);
+        if(_debugEnabled){
+            NSInteger level = 0;
+            NSString *text = @"--";
+            if([node parent]) {
+                level = 1;
+                text = @"----";
+            }
+            if([[node parent] parent]) {
+                level = 2;
+                text = @"------";
+            }
+            else if([[[node parent] parent] parent]) {
+                level = 3;
+                text = @"--------";
+            }
+            else if([[[[node parent] parent] parent] parent]) {
+                level = 4;
+                text = @"----------";
+            }
+            
+            NSString *eventDescription;
+            switch (event) {
+                case CMEventTypeEnter:
+                    eventDescription = @"enter";
+                    break;
+                case CMEventTypeDone:
+                    eventDescription = @"done";
+                    break;
+                case CMEventTypeExit:
+                    eventDescription = @"exit";
+                    break;
+                case CMEventTypeNone:
+                    eventDescription = @"none";
+                    break;
+            }
+            
+            NSLog(@"[CocoaMarkdown] %@ type: %ld, event: %@, string: %@, URLString: %@", text, (long)node.type, eventDescription, node.stringValue, node.URLString);
+            if(node.stringValue != nil && node.stringValue.length > 0) {
+                NSLog(@"[CocoaMarkdown] firstScalar: %hu", [node.stringValue characterAtIndex:0]);
+            }
+        }
         
         self.currentNode = node;        
         
@@ -279,6 +285,7 @@
             break;
         case CMNodeTypeSoftbreak:
             if (_delegateFlags.foundSoftBreak) {
+                //NSLog(@"")
                 [_delegate parserFoundSoftBreak:self];
             }
             break;

@@ -13,7 +13,7 @@
 
 - (NSAttributedString *)attributedStringWithAttributes:(CMTextAttributes *)attributes
 {
-    CMAttributedStringRenderer *renderer = [[CMAttributedStringRenderer alloc] initWithDocument:self attributes:attributes];
+    CMAttributedStringRenderer *renderer = [[CMAttributedStringRenderer alloc] initWithDocument:self attributes:attributes debugMode:false];
     return [renderer render];
 }
 

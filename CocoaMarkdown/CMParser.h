@@ -35,7 +35,7 @@
  *
  *  @return An initialized instance of the receiver.
  */
-- (instancetype)initWithDocument:(CMDocument *)document delegate:(id<CMParserDelegate>)delegate;
+- (instancetype)initWithDocument:(CMDocument *)document delegate:(id<CMParserDelegate>)delegate debugMode:(BOOL)debugMode;
 
 /**
  *  Document being parsed.
