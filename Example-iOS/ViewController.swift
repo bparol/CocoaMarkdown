@@ -35,7 +35,7 @@ class ViewController: UIViewController {
         // Customize the background color of code elements
         textAttributes.addStringAttributes([ .backgroundColor: UIColor(white: 0.9, alpha: 0.5)], forElementWithKinds: [.inlineCode, .codeBlock])
         
-        let renderer = CMAttributedStringRenderer(document: document, attributes: textAttributes)!
+        let renderer = CMAttributedStringRenderer(document: document, attributes: textAttributes, debugMode: true)!
         renderer.register(CMHTMLStrikethroughTransformer())
         renderer.register(CMHTMLSuperscriptTransformer())
         renderer.register(CMHTMLUnderlineTransformer())

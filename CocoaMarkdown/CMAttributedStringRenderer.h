@@ -24,7 +24,7 @@
  *
  *  @return An initialized instance of the receiver.
  */
-- (instancetype)initWithDocument:(CMDocument *)document attributes:(CMTextAttributes *)attributes;
+- (instancetype)initWithDocument:(CMDocument *)document attributes:(CMTextAttributes *)attributes debugMode:(BOOL)debugEnabled;
 
 /**
  *  Registers a handler to transform HTML elements.
