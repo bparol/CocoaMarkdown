@@ -45,6 +45,11 @@
     return self;
 }
 
+- (instancetype)initWithDocument:(CMDocument *)document attributes:(CMTextAttributes *)attributes
+{
+    return [self initWithDocument:document attributes:attributes debugMode:false];
+}
+
 - (void)registerHTMLElementTransformer:(id<CMHTMLElementTransformer>)transformer
 {
     NSParameterAssert(transformer);

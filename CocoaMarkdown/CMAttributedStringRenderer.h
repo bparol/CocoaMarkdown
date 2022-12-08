@@ -21,10 +21,21 @@
  *
  *  @param document   A Markdown document.
  *  @param attributes Attributes used to style the string.
+ *  @param debugMode Print processing details
  *
  *  @return An initialized instance of the receiver.
  */
 - (instancetype)initWithDocument:(CMDocument *)document attributes:(CMTextAttributes *)attributes debugMode:(BOOL)debugEnabled;
+
+/**
+ *  Designated initializer.
+ *
+ *  @param document   A Markdown document.
+ *  @param attributes Attributes used to style the string.
+ *
+ *  @return An initialized instance of the receiver.
+ */
+- (instancetype)initWithDocument:(CMDocument *)document attributes:(CMTextAttributes *)attributes;
 
 /**
  *  Registers a handler to transform HTML elements.
