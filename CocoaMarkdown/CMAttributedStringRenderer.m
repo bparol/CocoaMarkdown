@@ -260,7 +260,7 @@
 
 - (void)parserFoundLineBreak:(CMParser *)parser
 {
-    [self appendString:@"\u2029"];
+    [self appendString:@"\n"];
 }
 
 - (void)parserDidStartBlockQuote:(CMParser *)parser
